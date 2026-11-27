@@ -13,6 +13,7 @@ BT="${BT:-/opt/android-sdk/build-tools/36.0.0}"
 AJ="${AJ:-/opt/android-sdk/platforms/android-36/android.jar}"
 SHIZUKU_VER="${SHIZUKU_VER:-13.1.5}"
 SHIZUKU_URL="https://repo1.maven.org/maven2/dev/rikka/shizuku/api/${SHIZUKU_VER}/api-${SHIZUKU_VER}.aar"
+SHIZUKU_PROVIDER_URL="https://repo1.maven.org/maven2/dev/rikka/shizuku/provider/${SHIZUKU_VER}/provider-${SHIZUKU_VER}.aar"
 OUT="${1:-dist/temp-root.apk}"
 KS="${KS:-keystore.jks}"
 KS_PASS="${KS_PASS:-temproot}"
@@ -27,6 +28,12 @@ if [ ! -f "$B/libs/shizuku-classes.jar" ]; then
   curl -fsSL -o "$B/shizuku.aar" "$SHIZUKU_URL"
   (cd "$B" && unzip -o -q shizuku.aar classes.jar && mv classes.jar libs/shizuku-classes.jar)
 fi
+# ShizukuProvider 在独立的 provider 包里；清单声明了它，缺失会导致启动即崩溃
+if [ ! -f "$B/libs/shizuku-provider-classes.jar" ]; then
+  echo "    下载 Shizuku Provider ${SHIZUKU_VER}"
+  curl -fsSL -o "$B/shizuku-provider.aar" "$SHIZUKU_PROVIDER_URL"
+  (cd "$B" && unzip -o -q shizuku-provider.aar classes.jar && mv classes.jar libs/shizuku-provider-classes.jar)
+fi
 
 echo "==> 1/6 编译 Java"
 rm -rf "$B/classes" && mkdir -p "$B/classes"
@@ -36,7 +43,7 @@ javac --release 11 -encoding UTF-8 -classpath "$AJ" \
 echo "==> 2/6 汇编 dex（含 Shizuku API）"
 rm -rf "$B/dex" && mkdir -p "$B/dex"
 "$BT/d8" --min-api 30 --lib "$AJ" --output "$B/dex" \
-      $(find "$B/classes" -name '*.class') "$B/libs/shizuku-classes.jar"
+      $(find "$B/classes" -name '*.class') "$B/libs/shizuku-classes.jar" "$B/libs/shizuku-provider-classes.jar"
 
 echo "==> 3/6 编译资源"
 "$BT/aapt2" compile --dir "$APP/res" -o "$B/res.zip"
