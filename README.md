@@ -6,6 +6,15 @@
 
 ---
 
+## 文档
+
+| 文档 | 内容 |
+|---|---|
+| [电脑端 adb 教程](docs/adb-tutorial.md) | 不装 App、不用 Shizuku，插线就能跑，含排错表 |
+| [漏洞程序与内核配置](docs/conf.md) | conf 怎么来、没有现成的怎么自己提取 |
+
+---
+
 ## 它不是什么
 
 - ❌ 不是 Magisk / KernelSU 的管理器
@@ -44,6 +53,8 @@ App 内置了漏洞程序的一键下载（约 2.1 MB），但 **conf 必须自�
 4. 点「选择 conf 文件」→ 选中与当前内核匹配的 `.conf`
 5. 点「获取临时 Root」→ 阅读警告 → 确认
 6. 下方「运行日志」会实时显示过程
+
+> 不想装 App？插电脑用 adb 也能跑，见 [电脑端 adb 教程](docs/adb-tutorial.md)。
 
 成功后验证：
 
@@ -88,6 +99,7 @@ temp-root/
 │   └── src/com/kpgc/troot/
 │       └── MainActivity.java   全部界面与逻辑（约 500 行）
 ├── docs/
+│   ├── adb-tutorial.md         电脑端 adb 操作教程
 │   └── conf.md                 漏洞程序与内核配置怎么准备
 ├── build.sh
 └── LICENSE
