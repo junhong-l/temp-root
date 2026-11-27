@@ -85,7 +85,15 @@ timer
 6.18.21-android17-5-g805aa6adea19-abogki576585092-4k.conf
 ```
 
-### 1. 清理上次残留
+### 1.（可选）清理上次残留
+
+**第一次操作可以跳过这一步**，直接看第 2 步。
+
+只有下面这些情况才需要清理：
+
+- 上一次执行失败或中途 `Ctrl+C` 了
+- 换了一份新的 conf 想覆盖
+- 想确认环境干净、排除旧文件干扰
 
 ```bat
 adb shell rm -rf /data/local/tmp/timer /data/local/tmp/timer.conf /data/local/tmp/ksu_stage.sh /data/local/tmp/timer.log
@@ -119,6 +127,8 @@ KSU_LOADED
 
 **看到 `KSU_LOADED` 就是成功**，然后这个窗口会停住不动——正常，进程故意挂着维持凭据。
 
+> 这个窗口别关、别 `Ctrl+C`、也别重启，一直到你把事情做完。
+
 ### 4. 验证
 
 另开一个窗口：
@@ -135,13 +145,27 @@ uid=0(root) ... context=u:r:ksu:s0
 
 就对了。
 
-### 5. 收工
+### 5. 然后呢
+
+**别急着敲 `adb reboot`。** root 只存在于本次开机，一重启就没了——刚拿到的权限会立刻作废。
+
+拿到 root 之后该干什么就干什么：
+
+```bat
+adb shell su -c id                     :: 确认权限
+adb install KernelSU_Next_xxx.apk      :: 装管理器
+adb shell su -c 'ls /data/adb/modules' :: 看模块
+```
+
+真正想还原的时候（用完了、或者要开网银了）再重启：
 
 ```bat
 adb reboot
 ```
 
-root、KernelSU 模块、SELinux 状态全部还原。重启后再执行第 1 步清掉文件即可。
+重启后 root、KernelSU 模块、SELinux 状态全部还原，只有 `/data/local/tmp` 里的文件会留下，想清就执行第 1 步。
+
+> 顺序别搞反：**先拿 root → 做要做的事 → 最后才 reboot**。
 
 ---
 
